@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Xrm.Sdk;
 
-public class CreateContactOnAccountCreate : IPlugin
+public class AccCreateplugin : IPlugin
 {
     public void Execute(IServiceProvider serviceProvider)
     {
@@ -11,33 +11,23 @@ public class CreateContactOnAccountCreate : IPlugin
         var tracingService = (ITracingService)
             serviceProvider.GetService(typeof(ITracingService));
 
-        var factory = (IOrganizationServiceFactory)
-            serviceProvider.GetService(typeof(IOrganizationServiceFactory));
-
-        var service = factory.CreateOrganizationService(context.UserId);
-
-        tracingService.Trace("Plugin Started");
+        tracingService.Trace("START");
 
         if (context.InputParameters.Contains("Target") &&
             context.InputParameters["Target"] is Entity entity)
         {
-            if (entity.LogicalName != "account")
-                return;
+            tracingService.Trace("Target found");
 
-            tracingService.Trace("Account detected");
+            if (entity.LogicalName == "account")
+            {
+                tracingService.Trace("Account detected");
 
-            string accountName = entity.GetAttributeValue<string>("name");
+                entity["description"] = "Created via Plugin";
 
-            Entity contact = new Entity("contact");
-
-            contact["firstname"] = accountName; 
-            contact["parentcustomerid"] = new EntityReference("account", entity.Id);
-
-            service.Create(contact);
-
-            tracingService.Trace("Contact Created Successfully");
+                tracingService.Trace("Description set");
+            }
         }
 
-        tracingService.Trace("Plugin Completed");
+        tracingService.Trace("END");
     }
 }
