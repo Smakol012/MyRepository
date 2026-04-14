@@ -1,0 +1,40 @@
+using System.Net.Http;
+using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        Console.WriteLine("Webjob Started...");
+
+        await CallApi();
+
+        Console.WriteLine("Webjob Completed.");
+    }
+    static async Task CallApi()
+    {
+        using (HttpClient client = new HttpClient())
+        {
+            try
+            {
+                string url = "https://localhost:7249/api/Users";
+                var response = await client.GetAsync(url);
+                if (response.IsSuccessStatusCode)
+                {
+                    var data = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine("API Response:");
+                    Console.WriteLine(data);
+                }
+                else
+                {
+                    Console.WriteLine($"API call failed with status code: {response.StatusCode}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception:");
+                Console.WriteLine(ex.Message);
+            }
+        }
+    }
+}
